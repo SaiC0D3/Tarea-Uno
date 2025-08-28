@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #define FIRST_REC 1
 #define FIRST     2
 #define SECOND    3
