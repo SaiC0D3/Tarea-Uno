@@ -11,8 +11,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
-//#include <time.h> permite calcular el tiempo de ejecucion entre procesos
-//Hola
+#include <time.h>
 
 #define FIRST_REC 1
 #define FIRST     2
