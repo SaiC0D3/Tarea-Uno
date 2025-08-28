@@ -11,7 +11,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+
 
 #define FIRST_REC 1
 #define FIRST     2
