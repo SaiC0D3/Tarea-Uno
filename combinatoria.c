@@ -26,11 +26,11 @@
 
 void Usage(char const *);
 
-// Funcion de factorial recursiva para el valor num
-unsigned long int FactorialRec(unsigned long int num);
-
 // Funcion de factorial iterativa para el valor num
 unsigned long int Factorial(unsigned long int num);
+
+// Funcion de factorial recursiva para el valor num
+unsigned long int FactorialRec(unsigned long int num);
 
 // Primer metodo: C(n,k) = n! / (n-k)! * k!
 unsigned long int FirstMethod(unsigned long int n, unsigned long int k, unsigned char op);
@@ -135,15 +135,6 @@ void Usage(char const *msg) {
     printf("\n\no in {0,1,2,3}\n\n");
 }
 
-unsigned long int FactorialRec(unsigned long int num) {
-
-    if(num == 0 || num == 1){
-        return 1;
-    }
-        
-    return num * FactorialRec(num - 1);
-}
-
 unsigned long int Factorial(unsigned long int num) {
 
     unsigned int i;
@@ -158,6 +149,15 @@ unsigned long int Factorial(unsigned long int num) {
     }
 
     return prod;
+}
+
+unsigned long int FactorialRec(unsigned long int num) {
+
+    if(num == 0 || num == 1){
+        return 1;
+    }
+        
+    return num * FactorialRec(num - 1);
 }
 
 unsigned long int FirstMethod(unsigned long int n, unsigned long int k, unsigned char op) {
