@@ -59,6 +59,10 @@ unsigned int SecondMethodOptimized(unsigned long long int n, unsigned long long 
 // Tercer metodo combinatorial: multiplicatoria_{i=1}^{k} (n - i + 1 / i) mas optimizacion con simetria
 unsigned int ThirdMethod(unsigned long long int n, unsigned long long int k, unsigned char op);
 
+//Tercer metodo combinatorial optimizado con simetria y memoizacion en el calculo del factorial
+unsigned int ThirdMethodMemo(unsigned long long int n, unsigned long long int k);
+
+
 /*
  *
  */
@@ -171,16 +175,32 @@ int main(int argc, char const **argv) {
         else if (strcmp(argv[1], "-5") == 0) {
             method = THIRD;
 
-            printf("\nThird method: C(%llu,%llu) = ", n, k);
+            //printf("\nThird method: C(%llu,%llu) = ", n, k);
+
+            csc = clock(); // cpu start
             result = ThirdMethod(n, k, method);
-            printf("%u\n", result);
+            cec = clock(); // cpu exit
+
+            // printf("%u\n", result);
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+            printf("\n%llu %f\n", n, E_cpu);
+
         }
         else if (strcmp(argv[1], "-6") == 0) {
             method = THIRD_SIM;
+            
+            //printf("\nThird method optimized: C(%llu,%llu) = ", n, k);
 
-            printf("\nThird method optimized: C(%llu,%llu) = ", n, k);
-            result = ThirdMethod(n, k, method);
-            printf("%u\n", result);
+            csc = clock(); // cpu start
+            result = ThirdMethodMemo(n, k);
+            cec = clock(); // cpu exit
+            
+            //printf("%u\n", result);
+            
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu %f\n", n, E_cpu);
         }
         else {
             printf("\nEnter a valid modes (0 <= o <= 10)\n");
@@ -211,7 +231,7 @@ void Usage(char const *msg) {
     printf("3: SECOND\n");
     printf("4: SECOND_OP\n");
     printf("5: THIRD\n");
-    printf("6: THIRD_OP\n");
+    printf("6: THIRD_MEM\n");
     printf("7: \n");
     printf("8: \n");
     printf("9: \n");
@@ -344,6 +364,29 @@ unsigned int ThirdMethod(unsigned long long int n, unsigned long long int k, uns
         prod = prod * (n - i);
     }
     result = prod / Factorial(k);
+    
+    return result;
+}
+
+unsigned int ThirdMethodMemo(unsigned long long int n, unsigned long long int k) {
+
+    unsigned long long int *memo = (unsigned long long int *)calloc(k, sizeof(unsigned long long int));
+    unsigned long long int i, prod = 1;
+    unsigned int result;
+
+    CheckValues(n, k); // Ver casos base
+
+    // Propiedad de simetría: C(n,k) = C(n,n-k)
+    if (k > n - k) {
+        k = n - k;
+    }      
+
+    for (i = 0; i <= k - 1; i = i + 1) {
+        prod = prod * (n - i);
+    }
+
+    //solamente se realiza memo en el calculo del factorial de k
+    result = prod / FactorialRecMemo(k, memo);
     
     return result;
 }
