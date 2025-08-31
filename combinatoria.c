@@ -3,7 +3,7 @@
  *   Descripcion:     Determinar los valores maximos para n y k al calcular C(n,k) con
  *                    tres metodos distintos y realizar eventuales optimizaciones
  *   Autores:         Matías Olivares y Delian Santis
- *   Fecha:           25-08-2025  
+ *   Fecha revision:  31-08-2025  
  *   Compilador:      gcc.exe (MinGW.org GCC-6.3.0-1) 6.3.0 en VSCode
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -16,13 +16,15 @@
 #include <time.h>
 
 // Metodos de ejecucion para el calculo de C(n,k) y n!
-#define FIRST_MEM 0
-#define FIRST_REC 1
-#define FIRST_ITE 2
-#define SECOND    3
-#define SECOND_OP 4
-#define THIRD     5
-#define THIRD_SIM 6
+#define FIRST_REC        0
+#define FIRST_REC_MEMO   1
+#define FIRST_ITE        2
+#define FIRST_ITE_MEMO   3
+#define SECOND           4
+#define SECOND_MULT_MEMO 5
+#define THIRD            6
+#define THIRD_SIM        7
+#define FIRST_MULT_MEMO  8
 
 /*
  *
@@ -38,26 +40,32 @@ unsigned long long int CheckValues(unsigned long long int n, unsigned long long 
 // Funcion para calcular de manera recursiva el factorial de num (num!)
 unsigned long long int FactorialRec(unsigned long long int num);
 
-// Funcion para calcular de manera recursiva el factorial de num con memoizacion (programacion dinamica)
+// Funcion para calcular de manera recursiva el factorial de num, con memoizacion (programacion dinamica)
 unsigned long long int FactorialRecMemo(unsigned long long int num, unsigned long long int *memo);
 
 // Funcion para calcular de manera iterativa el factorial de num (num!)
 unsigned long long int Factorial(unsigned long long int num);
 
-// Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! mas modo de calculo de factorial
-unsigned int FirstMethod(unsigned long long int n, unsigned long long int k, unsigned char op);
+// Funcion para calcular de manera iterativa el factorial de num, con memoizacion (programacion dinamica)
+unsigned long long int FactorialMemo(unsigned long long int num, unsigned long long int *memo);
 
 // Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! con calculo de factorial recursivo y memoizacion
-unsigned int FirstMethodMemo(unsigned long long int n, unsigned long long int k, unsigned long long int *memo);
+unsigned int FirstMethodRec(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op);
+
+// Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! con calculo de factorial recursivo y memoizacion
+unsigned int FirstMethodIte(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op);
 
 // Segundo metodo combinatorial: C(n,k) = C(n-1,k-1) + C(n-1,k)
 unsigned long long int SecondMethod(unsigned long long int n, unsigned long long int k);
 
 // Segundo metodo combinatorial optimizado con simplificacion
-unsigned int SecondMethodOptimized(unsigned long long int n, unsigned long long int k);
+unsigned int SecondMethodOptimized(unsigned long long int n, unsigned long long int k, unsigned long long int *memo);
 
-// Tercer metodo combinatorial: multiplicatoria_{i=1}^{k} (n - i + 1 / i) mas optimizacion con simetria
+// Tercer metodo combinatorial: PI_{i=1}^{k} (n - i + 1 / i) mas optimizacion con simetria
 unsigned int ThirdMethod(unsigned long long int n, unsigned long long int k, unsigned char op);
+
+// Primermetodo combinatorial simplificado: C(n,k) = (1/k!) * (PI_{i=0}^{k-1} (n - i)) con memoizacion
+unsigned int FirstMethodOptimized(unsigned long long int n, unsigned long long int k, unsigned long long int *memo);
 
 /*
  *
@@ -66,7 +74,7 @@ unsigned int ThirdMethod(unsigned long long int n, unsigned long long int k, uns
 // 20! = 2.432.902.008.176.640.000  |  ull -> 0 a 18,446,744,073,709,551,615
 int main(int argc, char const **argv) {
     
-    unsigned long long int n, k, /*factorial,*/ *cache;
+    unsigned long long int n, k, *cache;
     unsigned int result = 0;
     unsigned char method;
     float E_cpu;
@@ -83,73 +91,62 @@ int main(int argc, char const **argv) {
         }
         
         if (strcmp(argv[1], "-0") == 0) {
-            method = FIRST_MEM;
+            method = FIRST_REC;
             cache = (unsigned long long int *)calloc(n, sizeof(unsigned long long int));
-            
-            //csc = clock(); // cpu start
-            //factorial = FactorialRecMemo(n, cache);
-            //cec = clock(); // cpu exit
-
-            //E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
-
-            //printf("\n%llu! = %llu\n", n, factorial);
-            //printf("\n%llu - Elapsed CPU Time %f\n", n, E_cpu);
 
             csc = clock(); // cpu start
-            result = FirstMethodMemo(n, k, cache);
+            result = FirstMethodRec(n, k, cache, method);
             cec = clock(); // cpu exit
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu %f\n", n, E_cpu);
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
 
-            //printf("\nFirst method using memoization: C(%llu,%llu) = %u\n", n, k, result);
+            printf("\nFirst method - recursive factorial: C(%llu,%llu) = %u\n", n, k, result);
         } 
         else if (strcmp(argv[1], "-1") == 0) {
-            method = FIRST_REC;
-
-            // csc = clock(); // cpu start
-            // factorial = FactorialRec(n);
-            // cec = clock(); // cpu exit
-
-            // E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
-
-            // printf("\n%llu! = %llu\n", n, factorial);
-            // printf("\n%llu - Elapsed CPU Time %f\n", n, E_cpu);
+            method = FIRST_REC_MEMO;
+            cache = (unsigned long long int *)calloc(n, sizeof(unsigned long long int));
             
             csc = clock(); // cpu start
-            result = FirstMethod(n, k, method);
+            result = FirstMethodRec(n, k, cache, method);
             cec = clock(); // cpu exit
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu %f\n", n, E_cpu);
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
 
-            //printf("\nFirst method using recursion: C(%llu,%llu) = %u\n", n, k, result);
+            printf("\nFirst method - recursive factorial with memoization: C(%llu,%llu) = %u\n", n, k, result);
         } 
         else if (strcmp(argv[1], "-2") == 0) {
             method = FIRST_ITE;
-
-            // csc = clock(); // cpu start
-            // factorial = Factorial(n);
-            // cec = clock(); // cpu exit
-
-            // E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
-
-            // printf("\n%llu! = %llu\n", n, factorial);
-            // printf("\n%llu - Elapsed CPU Time %f\n", n, E_cpu);
+            cache = (unsigned long long int *)calloc(n, sizeof(unsigned long long int));
 
             csc = clock(); // cpu start
-            result = FirstMethod(n, k, method);
+            result = FirstMethodIte(n, k, cache, method);
             cec = clock(); // cpu exit
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu %f\n", n, E_cpu);
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
 
-            //printf("\nFirst method iterative: C(%llu,%llu) = %u\n", n, k, result);
+            printf("\nFirst method - iterative factorial: C(%llu,%llu) = %u\n", n, k, result);
         } 
         else if (strcmp(argv[1], "-3") == 0) {
+            method = FIRST_ITE_MEMO;
+            cache = (unsigned long long int *)calloc(n, sizeof(unsigned long long int));
+
+            csc = clock(); // cpu start
+            result = FirstMethodIte(n, k, cache, method);
+            cec = clock(); // cpu exit
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
+
+            printf("\nFirst method - iterative factorial with memoization: C(%llu,%llu) = %u\n", n, k, result);
+        }
+        else if (strcmp(argv[1], "-4") == 0) {
             method = SECOND;
 
             if (k < 1) {
@@ -157,33 +154,77 @@ int main(int argc, char const **argv) {
                 exit(EXIT_FAILURE);
             }
             
-            printf("\nSecond method: C(%llu,%llu) = ", n, k);
+            csc = clock(); // cpu start
             result = SecondMethod(n, k);
-            printf("%u\n", result);
-        }
-        else if (strcmp(argv[1], "-4") == 0) {
-            method = SECOND_OP;
+            cec = clock(); // cpu exit
 
-            printf("\nSecond method optimized: C(%llu,%llu) = ", n, k);
-            result = SecondMethodOptimized(n, k);
-            printf("%u\n", result);
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
+
+            printf("\nSecond method recursive: C(%llu,%llu) = %u\n", n, k, result);
         }
         else if (strcmp(argv[1], "-5") == 0) {
-            method = THIRD;
+            method = SECOND_MULT_MEMO;
+            cache = (unsigned long long int *)calloc(n, sizeof(unsigned long long int));
 
-            printf("\nThird method: C(%llu,%llu) = ", n, k);
-            result = ThirdMethod(n, k, method);
-            printf("%u\n", result);
+            if (k < 1) {
+                printf("\nEnter a valid value for k (1 <= k < n)\n");
+                exit(EXIT_FAILURE);
+            }
+            
+            csc = clock(); // cpu start
+            result = SecondMethodOptimized(n, k, cache);
+            cec = clock(); // cpu exit
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
+
+            printf("\nSecond method multiplicative with memoization: C(%llu,%llu) = %u\n", n, k, result);
         }
         else if (strcmp(argv[1], "-6") == 0) {
+            method = THIRD;
+
+            csc = clock(); // cpu start
+            result = ThirdMethod(n, k, method);
+            cec = clock(); // cpu exit
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
+
+            printf("\nThird method multiplicative: C(%llu,%llu) = %u\n", n, k, result);
+        }
+        else if (strcmp(argv[1], "-7") == 0) {
             method = THIRD_SIM;
 
-            printf("\nThird method optimized: C(%llu,%llu) = ", n, k);
+            csc = clock(); // cpu start
             result = ThirdMethod(n, k, method);
-            printf("%u\n", result);
+            cec = clock(); // cpu exit
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
+
+            printf("\nThird method multiplicative with simetry: C(%llu,%llu) = %u\n", n, k, result);
         }
+        else if (strcmp(argv[1], "-8") == 0) {
+            method = FIRST_MULT_MEMO;
+            cache = (unsigned long long int *)calloc(n, sizeof(unsigned long long int));
+
+            csc = clock(); // cpu start
+            result = FirstMethodOptimized(n, k, cache);
+            cec = clock(); // cpu exit
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%llu - CPU time %f\n", n, E_cpu);
+
+            printf("\nFirst method multiplicative with memoization: C(%llu,%llu) = %u\n", n, k, result);
+        } 
         else {
-            printf("\nEnter a valid modes (0 <= o <= 10)\n");
+            printf("\nEnter a valid modes (0 <= o <= 8)\n");
             exit(EXIT_FAILURE);
         } 
     }
@@ -204,18 +245,16 @@ int main(int argc, char const **argv) {
 
 void Usage(char const *msg) {
     printf("\nUsage: %s -o n k", msg);
-    printf("\n\no in {0,1,2,3,4,5,6,7,8,9,10}\n\n");
-    printf("0: FIRST_MEM\n");
-    printf("1: FIRST_REC\n");
-    printf("2: FIRST\n");
-    printf("3: SECOND\n");
-    printf("4: SECOND_OP\n");
-    printf("5: THIRD\n");
-    printf("6: THIRD_OP\n");
-    printf("7: \n");
-    printf("8: \n");
-    printf("9: \n");
-    printf("10: \n");
+    printf("\n\no in {0,1,2,3,4,5,6,7,8}\n\n");
+    printf("0: FIRST_RMEM\n");
+    printf("1: FIRST_REC_MEMO\n");
+    printf("2: FIRST_ITE\n");
+    printf("3: FIRST_ITE_MEMO\n");
+    printf("4: SECOND\n");
+    printf("5: SECOND_MULT_MEMO\n");
+    printf("6: THIRD\n");
+    printf("7: THIRD_SIM\n");
+    printf("8: FIRST_MULT_MEMO\n");
 }
 
 unsigned long long int CheckValues(unsigned long long int n, unsigned long long int k) {
@@ -258,8 +297,7 @@ unsigned long long int FactorialRecMemo(unsigned long long int num, unsigned lon
 
 unsigned long long int Factorial(unsigned long long int num) {
 
-    unsigned long long int i;
-    unsigned long long int prod = 1;
+    unsigned long long int i, prod = 1;
 
     if (num == 0 || num == 1) { // Convencion (0! = 1! = 1)
         return 1;
@@ -272,23 +310,42 @@ unsigned long long int Factorial(unsigned long long int num) {
     return prod;
 }
 
-unsigned int FirstMethod(unsigned long long int n, unsigned long long int k, unsigned char op) {
+unsigned long long int FactorialMemo(unsigned long long int num, unsigned long long int *memo) {
+
+    unsigned long long int i, result;
+
+    memo[0] = 1;
+        
+    for (i = 2; i <= num; i = i + 1) {
+        memo[i - 1] = memo[i - 2] * i;
+        result = memo[i - 1];
+    }
+
+    return result;
+}
+
+unsigned int FirstMethodRec(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op) {
+
+    if (op == FIRST_REC) {
+        return ((FactorialRec(n)) / (FactorialRec(n - k) * (FactorialRec(k))));
+    }
+    else if (op == FIRST_REC_MEMO) {
+        return ((FactorialRecMemo(n, memo)) / (FactorialRecMemo(n - k, memo) * (FactorialRecMemo(k, memo))));
+    }
+}
+
+unsigned int FirstMethodIte(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op) {
 
     //unsigned int result;
 
     if (op = FIRST_ITE) { // Primer metodo con factorial iterativo
         return ((Factorial(n)) / (Factorial(n - k) * (Factorial(k))));
     }
-    else if (op == FIRST_REC) { // Segundo metodo con factorial recursivo
-        return ((FactorialRec(n)) / (FactorialRec(n - k) * (FactorialRec(k))));
+    else if (op == FIRST_ITE_MEMO) { // Segundo metodo con factorial recursivo
+        return ((FactorialMemo(n, memo)) / (FactorialMemo(n - k, memo) * (FactorialMemo(k, memo))));
     } 
 
     //return result;
-}
-
-unsigned int FirstMethodMemo(unsigned long long int n, unsigned long long int k, unsigned long long int *memo) {
-
-    return ((FactorialRecMemo(n, memo)) / (FactorialRecMemo(n - k, memo) * (FactorialRecMemo(k, memo))));
 }
 
 unsigned long long int SecondMethod(unsigned long long int n, unsigned long long int k) {
@@ -304,7 +361,7 @@ unsigned long long int SecondMethod(unsigned long long int n, unsigned long long
     return (SecondMethod(n - 1, k - 1) + SecondMethod(n - 1, k)); // Recursion (C(n,k) = C(n-1,k-1) + C(n-1,k))
 }
 
-unsigned int SecondMethodOptimized(unsigned long long int n, unsigned long long int k) {
+unsigned int SecondMethodOptimized(unsigned long long int n, unsigned long long int k, unsigned long long int *memo) {
 
     unsigned long long int i, first_mult = 1, second_mult = 1;
     unsigned int result1, result2;
@@ -315,13 +372,13 @@ unsigned int SecondMethodOptimized(unsigned long long int n, unsigned long long 
     for (i = 1; i <= k - 1; i = i + 1) {
         first_mult = first_mult * (n - i);
     }
-    result1 = first_mult / Factorial(k - 1);
+    result1 = first_mult / FactorialMemo(k - 1, memo);
 
     // Resuelve la multiplicidad (simplificacion) del segundo sumando
     for (i = 1; i <= k; i = i + 1) {
         second_mult = second_mult * (n - i);
     }  
-    result2 = second_mult / Factorial(k); // C(n,k) = [(1/(k-1)!) * (PI_{1}^{k-1} (n - i))] + [(1/k!) * (PI_{1}^{k} (n - i))]
+    result2 = second_mult / FactorialMemo(k, memo); // C(n,k) = [(1/(k-1)!) * (PI_{1}^{k-1} (n - i))] + [(1/k!) * (PI_{1}^{k} (n - i))]
 
     return (result1 + result2);
 }
@@ -333,17 +390,31 @@ unsigned int ThirdMethod(unsigned long long int n, unsigned long long int k, uns
 
     CheckValues(n, k); // Ver casos base
 
-    // Propiedad de simetría: C(n,k) = C(n,n-k)
+    // Propiedad de simetria: C(n,k) = C(n,n-k)
     if (op == THIRD_SIM) {
-        if (k > n - k) {
+        if (k > n / 2) {
             k = n - k;
         }
     }      
 
-    for (i = 0; i <= k - 1; i = i + 1) {
-        prod = prod * (n - i);
+    for (i = 1; i <= k; i = i + 1) {
+        prod = (prod * (n + 1 - i)) / i;
     }
-    result = prod / Factorial(k);
+     
+    return prod;
+}
+
+unsigned int FirstMethodOptimized(unsigned long long int n, unsigned long long int k, unsigned long long int *memo) {
+
+    unsigned long long int i, prod = 1;
+    unsigned int result;
+
+    CheckValues(n, k); // Ver casos base 
+
+    for (i = 0; i <= k - 1; i = i + 1) {
+       prod = prod * (n - i);
+    }
+    result = prod / FactorialMemo(k, memo);
     
     return result;
 }
