@@ -15,7 +15,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MAX 20000   // número de bloques (ajustar según n máximo)
+#define MAX 100000   // número de bloques (ajustar según n máximo)
 #define BASE 256    // cada bloque almacena un valor 0-255
 
 // Metodos de ejecucion para el calculo de C(n,k) y n!
@@ -26,7 +26,7 @@
 #define SECOND_REC       4
 #define SECOND_MEMO      5
 #define THIRD            6
-#define THIRD_SIM        7
+//#define THIRD_SIM        7
 #define FIRST_MULT_MEMO  8
 #define SECOND_MULT_MEMO 9
 #define FIRST_MULT_256   10
@@ -40,128 +40,52 @@
 void Usage(char const *);
 
 // Funcion para verificar las condiciones necesarias de entrada para los metodos
-unsigned long long int CheckValues(unsigned long long int n, unsigned long long int k);
+unsigned int CheckValues(unsigned int n, unsigned int k);
 
 // Funcion para calcular de manera recursiva el factorial de num (num!)
-unsigned long long int FactorialRec(unsigned long long int num);
+unsigned long long int FactorialRec(unsigned int num);
 
 // Funcion para calcular de manera recursiva el factorial de num, con memoizacion (programacion dinamica)
-unsigned long long int FactorialRecMemo(unsigned long long int num, unsigned long long int *memo);
+unsigned long long int FactorialRecMemo(unsigned int num, unsigned long long int *memo);
 
 // Funcion para calcular de manera iterativa el factorial de num (num!)
-unsigned long long int Factorial(unsigned long long int num);
+unsigned long long int Factorial(unsigned int num);
 
 // Funcion para calcular de manera iterativa el factorial de num, con memoizacion (programacion dinamica)
-unsigned long long int FactorialMemo(unsigned long long int num, unsigned long long int *memo);
+unsigned long long int FactorialMemo(unsigned int num, unsigned long long int *memo);
 
 // Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! con calculo de factorial recursivo y memoizacion
-unsigned long long int FirstMethodRec(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op);
+unsigned long long int FirstMethodRec(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op);
 
 // Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! con calculo de factorial recursivo y memoizacion
-unsigned long long int FirstMethodIte(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op);
+unsigned long long int FirstMethodIte(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op);
 
 // Segundo metodo combinatorial: C(n,k) = C(n-1,k-1) + C(n-1,k)
-unsigned long long int SecondMethod(unsigned long long int n, unsigned long long int k);
+unsigned long long int SecondMethod(unsigned int n, unsigned int k);
 
 // Segundo metodo combinatorial: C(n,k) = C(n-1,k-1) + C(n-1,k) con memoizacion
-unsigned long long int SecondMethodMemoized(unsigned long long int n, unsigned long long int k, unsigned long long int **memo);
+unsigned long long int SecondMethodMemoized(unsigned int n, unsigned int k, unsigned long long int **memo);
 
 // Tercer metodo combinatorial: PI_{i=1}^{k} (n - i + 1 / i) mas optimizacion con simetria
-unsigned long long int ThirdMethod(unsigned long long int n, unsigned long long int k, unsigned char op);
+unsigned long long int ThirdMethod(unsigned int n, unsigned int k);
 
 // Primer metodo combinatorial simplificado: C(n,k) = PI_{i=1}^{k} (n - k + i)
-unsigned long long int FirstMethodSimplified(unsigned long long int n, unsigned long long int k);
+unsigned long long int FirstMethodSimplified(unsigned int n, unsigned int k);
 
 // Segundo metodo combinatorial simplificado: C(n,k) = [PI_{1}^{k-1} {(n - i) / i})] + [PI_{1}^{k} {(n - i) / i})]
-unsigned long long int SecondMethodSimplified(unsigned long long int n, unsigned long long int k);
+unsigned long long int SecondMethodSimplified(unsigned int n, unsigned int k);
 
 // Multiplica result * x
-void MulBigNum(unsigned char result[], unsigned long long int *size, unsigned long long int x);
+void MulBase256(unsigned char result[], int *size, unsigned int x);
 
 // Divide result / m (exacto)
-void DivBigNum(unsigned char result[], unsigned long long int *size, unsigned long long int x);
+void DivBase256(unsigned char result[], int *size, unsigned int x);
 
 // Imprime en decimal el número en base 256
-void PrintBigDecimal(unsigned char result[], unsigned long long int size);
+void PrintDecimal(unsigned char result[], int size);
 
 // Calcula combinatoria C(n,k) con el primer metodo simplificado
-void FirstMethodSimplified256(unsigned long long int n, unsigned long long int k);
-
-// Inicializa result = 1
-void initBigInt(unsigned char result[], int *size) {
-    for (int i = 0; i < MAX; i++) result[i] = 0;
-    result[0] = 1;
-    *size = 1;
-}
-
-// Multiplica result * m
-void mulBigInt(unsigned char result[], int *size, unsigned long long m) {
-    unsigned long long prod, carry = 0;
-    for (int i = 0; i < *size; i++) {
-        prod = (unsigned long long)result[i] * m + carry;
-        result[i] = prod % BASE;
-        carry = prod / BASE;
-    }
-    while (carry > 0) {
-        result[(*size)++] = carry % BASE;
-        carry /= BASE;
-    }
-}
-
-// Divide result / m (exacto)
-void divBigInt(unsigned char result[], int *size, unsigned long long m) {
-    unsigned long long rem = 0, cur;
-    for (int i = *size - 1; i >= 0; i--) {
-        cur = rem * BASE + result[i];
-        result[i] = cur / m;
-        rem = cur % m;
-    }
-    while (*size > 1 && result[*size - 1] == 0) (*size)--;
-}
-
-// Imprime en decimal el número en base 256
-void printBigInt(unsigned char result[], int size) {
-    unsigned long long decimal[MAX * 3]; // almacenamiento temporal en base 10
-    int dec_size = 1;
-    decimal[0] = 0;
-
-    for (int j = size - 1; j >= 0; j--) {
-        unsigned long long carry = result[j];
-        for (int k = 0; k < dec_size; k++) {
-            unsigned long long val = decimal[k] * BASE + carry;
-            decimal[k] = val % 10;
-            carry = val / 10;
-        }
-        while (carry > 0) {
-            decimal[dec_size++] = carry % 10;
-            carry /= 10;
-        }
-    }
-
-    for (int k = dec_size - 1; k >= 0; k--) printf("%lld", decimal[k]);
-}
-
-// Calcula combinatoria C(n,k)
-void combinatoria(unsigned long long int n, unsigned long long int k) {
-    if (k < 0 || k > n) {
-        printf("C(%lld,%lld) = 0\n", n, k);
-        return;
-    }
-    //if (k > n - k) k = n - k;  // simetría
-
-    unsigned char result[MAX];
-    int size, i;
-    initBigInt(result, &size);
-
-    for (i = 1; i <= k; i++) {
-        mulBigInt(result, &size, n - k + i);
-        divBigInt(result, &size, i);
-    }
-
-    printf("C(%lld,%lld) = ", n, k);
-    printBigInt(result, size);
-    printf("\n");
-}
+void FirstMethodSimplified256(unsigned int n, unsigned int k);
 
 /*
  *
@@ -169,7 +93,8 @@ void combinatoria(unsigned long long int n, unsigned long long int k) {
 
 int main(int argc, char const **argv) {
     
-    unsigned long long int i, n, k, result = 0, *cache = NULL, **table = NULL;
+    unsigned long long int result, *cache = NULL, **table = NULL;
+    unsigned int i, n, k;
     unsigned char method;
     float E_cpu;
     clock_t csc, cec;
@@ -194,9 +119,9 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nFirst method - recursive factorial: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nFirst method - recursive factorial: C(%u,%u) = %llu\n", n, k, result);
         } 
         else if (strcmp(argv[1], "-1") == 0) {
             method = FIRST_REC_MEMO;
@@ -208,9 +133,9 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nFirst method - recursive factorial with memoization: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nFirst method - recursive factorial with memoization: C(%u,%u) = %llu\n", n, k, result);
         } 
         else if (strcmp(argv[1], "-2") == 0) {
             method = FIRST_ITE;
@@ -222,9 +147,9 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nFirst method - iterative factorial: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nFirst method - iterative factorial: C(%u,%u) = %llu\n", n, k, result);
         } 
         else if (strcmp(argv[1], "-3") == 0) {
             method = FIRST_ITE_MEMO;
@@ -236,9 +161,9 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nFirst method - iterative factorial with memoization: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nFirst method - iterative factorial with memoization: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-4") == 0) {
             method = SECOND_REC;
@@ -254,9 +179,9 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nSecond method recursive: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nSecond method recursive: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-5") == 0) {
             method = SECOND_MEMO;
@@ -277,35 +202,35 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nSecond method recursive with memoization: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nSecond method recursive with memoization: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-6") == 0) {
             method = THIRD;
 
             csc = clock(); // cpu start
-            result = ThirdMethod(n, k, method);
+            result = ThirdMethod(n, k);
             cec = clock(); // cpu exit
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nThird method multiplicative: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nThird method multiplicative: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-7") == 0) {
-            method = THIRD_SIM;
+            // method = THIRD_SIM;
 
-            csc = clock(); // cpu start
-            result = ThirdMethod(n, k, method);
-            cec = clock(); // cpu exit
+            // csc = clock(); // cpu start
+            // result = ThirdMethod(n, k);
+            // cec = clock(); // cpu exit
 
-            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+            // E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            // printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nThird method multiplicative with simetry: C(%llu,%llu) = %llu\n", n, k, result);
+            // printf("\nThird method multiplicative with simetry: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-8") == 0) {
             method = FIRST_MULT_MEMO;
@@ -316,9 +241,9 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nFirst method multiplicative: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nFirst method multiplicative: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-9") == 0) {
             method = SECOND_MULT_MEMO;
@@ -334,21 +259,21 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
 
-            printf("\nSecond method multiplicative: C(%llu,%llu) = %llu\n", n, k, result);
+            printf("\nSecond method multiplicative: C(%u,%u) = %llu\n", n, k, result);
         }
         else if (strcmp(argv[1], "-10") == 0) {
             method = FIRST_MULT_256;
 
             csc = clock(); // cpu start
-            combinatoria(n, k);
+            FirstMethodSimplified256(n, k);
             //FirstMethodSimplified256(n, k);
             cec = clock(); // cpu exit
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("\n%llu - CPU time %f\n", n, E_cpu);
+            printf("\n%u - CPU time %f\n", n, E_cpu);
         } 
         else {
             printf("\nEnter a valid modes (0 <= o <= 12)\n");
@@ -395,7 +320,7 @@ void Usage(char const *msg) {
     printf("10: FIRST_MULT_256\n");
 }
 
-unsigned long long int CheckValues(unsigned long long int n, unsigned long long int k) {
+unsigned int CheckValues(unsigned int n, unsigned int k) {
 
     if(k == 0 || k == n) { // Casos base (C(n,0) = C(n,n) = 1)
         return 1;
@@ -403,9 +328,11 @@ unsigned long long int CheckValues(unsigned long long int n, unsigned long long 
     else if(k == 1) { // Caso especial (C(n,1) = n)
         return n;
     }
+
+    return 0;
 }
 
-unsigned long long int FactorialRec(unsigned long long int num) {
+unsigned long long int FactorialRec(unsigned int num) {
 
     if(num == 0 || num == 1) { // Caso base (1! = 0! = 1)
         return 1;
@@ -414,7 +341,7 @@ unsigned long long int FactorialRec(unsigned long long int num) {
     return num * FactorialRec(num - 1); // Recursion (n! = n * (n - 1)!)
 }
 
-unsigned long long int FactorialRecMemo(unsigned long long int num, unsigned long long int *memo) {
+unsigned long long int FactorialRecMemo(unsigned int num, unsigned long long int *memo) {
 
     if(num == 0 || num == 1) { // Caso base (1! = 0! = 1)
         memo[0] = 1;
@@ -430,14 +357,17 @@ unsigned long long int FactorialRecMemo(unsigned long long int num, unsigned lon
     }
 }
 
-unsigned long long int Factorial(unsigned long long int num) {
+unsigned long long int Factorial(unsigned int num) {
 
-    unsigned long long int i, prod = 1;
+    unsigned long long int prod;
+    unsigned int i;
 
     if (num == 0 || num == 1) { // Convencion (0! = 1! = 1)
         return 1;
     }
         
+    prod = 1;
+
     for (i = 2; i <= num; i = i + 1) { // Iteracion sobre el producto de numeros desde 2 hasta num
         prod = prod * i;
     }
@@ -445,9 +375,10 @@ unsigned long long int Factorial(unsigned long long int num) {
     return prod;
 }
 
-unsigned long long int FactorialMemo(unsigned long long int num, unsigned long long int *memo) {
+unsigned long long int FactorialMemo(unsigned int num, unsigned long long int *memo) {
 
-    unsigned long long int i, result;
+    unsigned long long int result;
+    unsigned int i;
 
     memo[0] = 1;
 
@@ -459,9 +390,13 @@ unsigned long long int FactorialMemo(unsigned long long int num, unsigned long l
     return result;
 }
 
-unsigned long long int FirstMethodRec(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op) {
+unsigned long long int FirstMethodRec(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
 
-    CheckValues(n, k); // Ver casos base
+    unsigned long long int base = CheckValues(n, k); 
+
+    if (base != 0) { // Si es caso base, retornar directamente
+        return base;
+    }
 
     if (op == FIRST_REC) {
         return ((FactorialRec(n)) / (FactorialRec(n - k) * (FactorialRec(k))));
@@ -471,9 +406,13 @@ unsigned long long int FirstMethodRec(unsigned long long int n, unsigned long lo
     }
 }
 
-unsigned long long int FirstMethodIte(unsigned long long int n, unsigned long long int k, unsigned long long int *memo, unsigned char op) {
+unsigned long long int FirstMethodIte(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
 
-    CheckValues(n, k); // Ver casos base
+    unsigned long long int base = CheckValues(n, k); 
+
+    if (base != 0) { // Si es caso base, retornar directamente
+        return base;
+    }
 
     if (op = FIRST_ITE) { // Primer metodo con factorial iterativo
         return ((Factorial(n)) / (Factorial(n - k) * (Factorial(k))));
@@ -483,7 +422,7 @@ unsigned long long int FirstMethodIte(unsigned long long int n, unsigned long lo
     } 
 }
 
-unsigned long long int SecondMethod(unsigned long long int n, unsigned long long int k) {
+unsigned long long int SecondMethod(unsigned int n, unsigned int k) {
 
     // No se usa la funcion CheckValues por las llamadas recursivas, para evitar desbordamiento de la pila
     if(k == 0 || k == n) { // Casos base (C(n,0) = C(n,n) = 1)
@@ -496,9 +435,9 @@ unsigned long long int SecondMethod(unsigned long long int n, unsigned long long
     return (SecondMethod(n - 1, k - 1) + SecondMethod(n - 1, k)); // Recursion (C(n,k) = C(n-1,k-1) + C(n-1,k))
 }
 
-unsigned long long int SecondMethodMemoized(unsigned long long int n, unsigned long long int k, unsigned long long int **memo) {
+unsigned long long int SecondMethodMemoized(unsigned int n, unsigned int k, unsigned long long int **memo) {
 
-    unsigned long long int i;
+    unsigned int i;
 
     // No se usa la funcion CheckValues por las llamadas recursivas, para evitar desbordamiento de la pila
     if(k == 0 || k == n) { // Casos base (C(n,0) = C(n,n) = 1)
@@ -519,135 +458,154 @@ unsigned long long int SecondMethodMemoized(unsigned long long int n, unsigned l
     }
 }
 
-unsigned long long int ThirdMethod(unsigned long long int n, unsigned long long int k, unsigned char op) {
+unsigned long long int ThirdMethod(unsigned int n, unsigned int k) {
 
-    unsigned long long int i, prod = 1, result;
+    unsigned long long int prod, base = CheckValues(n, k); 
+    unsigned int i;
 
-    CheckValues(n, k); // Ver casos base
-
-    // Propiedad de simetria: C(n,k) = C(n,n-k)
-    if (op == THIRD_SIM) {
-        if (k > n / 2) {
-            k = n - k;
-        }
-    }      
-
-    for (i = 1; i <= k; i = i + 1) {
-        prod = (prod * (n + 1 - i)) / i;
+    // No se usa la funcion CheckValues por las llamadas recursivas, para evitar desbordamiento de la pila
+    if(k == 0 || k == n) { // Casos base (C(n,0) = C(n,n) = 1)
+        return 1;
     }
-     
-    return prod;
+    else if(k == 1) { // Caso especial (C(n,1) = n)
+        return n;
+    }
+
+    return (n * ThirdMethod(n - 1, k - 1)) / k;; // Recursion (C(n,k) = n/k * C(n-1,k-1))
 }
 
-unsigned long long int FirstMethodSimplified(unsigned long long int n, unsigned long long int k) {
+unsigned long long int FirstMethodSimplified(unsigned int n, unsigned int k) {
 
-    unsigned long long int i, prod = 1, result;
+    unsigned long long int prod, base = CheckValues(n, k); 
+    unsigned int i;
 
-    CheckValues(n, k); // Ver casos base 
+    if (base != 0) { // Si es caso base, retornar directamente
+        return base;
+    }
+
+    prod = 1;
 
     for (i = 1; i <= k; i = i + 1) {
        prod = prod * (n - k + i);
        prod = prod / i;
     }
-    result = prod;
-    
-    return result;
+
+    return prod;
 }
 
-unsigned long long int SecondMethodSimplified(unsigned long long int n, unsigned long long int k) {
+unsigned long long int SecondMethodSimplified(unsigned int n, unsigned int k) {
 
-    unsigned long long int i, first_mult = 1, second_mult = 1, result1, result2;
+    unsigned long long int first_mult, second_mult, base = CheckValues(n, k);
+    unsigned int i;
 
-    CheckValues(n, k); // Ver casos base
+    if (base != 0) { // Si es caso base, retornar directamente
+        return base;
+    }
 
-    // Resuelve la multiplicidad (simplificacion) del primer sumando
-    for (i = 1; i <= k - 1; i = i + 1) {
+    first_mult = 1; 
+
+    for (i = 1; i <= k - 1; i = i + 1) { // Resuelve la multiplicidad (simplificacion) del primer sumando
         first_mult = first_mult * (n - i);
         first_mult = first_mult / i;
     }
-    result1 = first_mult;
 
-    // Resuelve la multiplicidad (simplificacion) del segundo sumando
-    for (i = 1; i <= k; i = i + 1) {
+    second_mult = 1;
+
+    for (i = 1; i <= k; i = i + 1) { // Resuelve la multiplicidad (simplificacion) del segundo sumando
         second_mult = second_mult * (n - i);
         second_mult = second_mult / i;
     }  
-    result2 = second_mult;
 
-    return (result1 + result2);
+    return (first_mult + second_mult);
 }
 
-// void MulBigNum(unsigned char result[], unsigned long long int *size, unsigned long long int x) {
+// result * x
+void MulBase256(unsigned char result[], int *size, unsigned int x) {
 
-//     unsigned long long int i, prod, carry = 0;
+    unsigned long long int prod, carry;
+    int i;
 
-//     for (i = 0; i < *size; i = i + 1) {
-//         prod = ((unsigned long long int)result[i] * x) + carry;
-//         result[i] = prod % BASE;
-//         carry = prod / BASE;
-//     }
-//     while (carry > 0) {
-//         result[*size] = carry % BASE;
-//         carry = carry / BASE;
-//         size = size + 1;
-//     }
-// }
+    carry = 0;
 
-// void DivBigNum(unsigned char result[], unsigned long long int *size, unsigned long long int x) {
+    for (i = 0; i < *size; i = i + 1) {
+        prod = (unsigned long long int)result[i] * x + carry;
+        result[i] = prod % BASE;
+        carry = prod / BASE;
+    }
+    while (carry > 0 && *size < MAX) {
+        result[*size] = carry % BASE;
+        carry = carry / BASE;
+        *size = *size + 1;
+    }
+}
 
-//     unsigned long long int i, rem = 0, current;
+// result / x
+void DivBase256(unsigned char result[], int *size, unsigned int x) {
 
-//     for (i = *size - 1; i >= 0; i = i - 1) {
-//         current = rem * BASE + result[i];
-//         result[i] = current / x;
-//         rem = current % x;
-//     }
-//     while (*size > 1 && result[*size - 1] == 0) {
-//         *size = *size - 1;
-//     }
-// }
+    unsigned long long int rem, cur;
+    int i;
 
-// void PrintBigDecimal(unsigned char result[], unsigned long long int size) {
+    rem = 0;
 
-//     unsigned long long int i, j, k, dec_size = 1, carry, val, decimal[MAX * 3]; // almacenamiento temporal en base 10
+    for (i = *size - 1; i >= 0; i = i - 1) {
+        cur = rem * BASE + result[i];
+        result[i] = cur / x;
+        rem = cur % x;
+    }
+    while (*size > 1 && result[*size - 1] == 0) {
+        *size = *size - 1;
+    }
+}
 
-//     decimal[0] = 0;
+void PrintDecimal(unsigned char result[], int size) {
 
-//     for (i = size - 1; i >= 0; i = i - 1) {
-//         carry = result[i];
-//         for (j = 0; j < dec_size; j = j + 1) {
-//             val = decimal[j] * BASE + carry;
-//             decimal[j] = val % 10;
-//             carry = val / 10;
-//         }
-//         while (carry > 0) {
-//             decimal[dec_size] = carry % 10;
-//             carry = carry / 10;
-//             dec_size = dec_size + 1;
-//         }
-//     }
+    int i, j, k, dec_size, carry, val, decimal[MAX * 3]; // almacenamiento temporal en base 10
 
-//     for (k = dec_size - 1; k >= 0; k = k - 1) {
-//         printf("%lld", decimal[k]);
-//     }
-// }
+    dec_size = 1;
+    decimal[0] = 0;
 
-// void FirstMethodSimplified256(unsigned long long int n, unsigned long long int k) {
+    for (i = size - 1; i >= 0; i = i - 1) {
+        carry = result[i];
+        for (j = 0; j < dec_size; j = j + 1) {
+            val = decimal[j] * BASE + carry;
+            decimal[j] = val % 10;
+            carry = val / 10;
+        }
+        while (carry > 0) {
+            decimal[dec_size] = carry % 10;
+            carry = carry / 10;
+            dec_size = dec_size + 1;
+        }
+    }
+
+    for (k = dec_size - 1; k >= 0; k = k - 1) {
+        printf("%u", decimal[k]);
+    }
+}
+
+void FirstMethodSimplified256(unsigned int n, unsigned int k) {
     
-//     unsigned char result[MAX];
-//     int i, size = 1;
+    unsigned char result[MAX];
+    int i, size;
+
+    // Propiedad de simetria: C(n,k) = C(n,n-k)
+    if (k > n / 2) {
+        k = n - k;
+    } 
     
-//     for (i = 0; i < MAX; i = i + 1) { 
-//         result[i] = 0;
-//     }
-//     result[0] = 1;
+    for (i = 0; i < MAX; i = i + 1) { 
+        result[i] = 0;
+    }
+    result[0] = 1;
 
-//     for (i = 1; i <= k; i = i + 1) {
-//         MulBigNum(result, &size, n - k + i);
-//         DivBigNum(result, &size, i);
-//     }
+    size = 1;
 
-//     printf("\nFirst method multiplicative with 256 basis: C(%llu,%llu) = ", n, k);
-//     PrintBigDecimal(result, size);
-//     printf("\n");
-// }
+    for (i = 1; i <= k; i = i + 1) {
+        MulBase256(result, &size, n - k + i);
+        DivBase256(result, &size, i);
+    }
+
+    printf("\nFirst method multiplicative with 256 base: C(%u,%u) = ", n, k);
+    PrintDecimal(result, size);
+    printf("\n");
+}
