@@ -2,6 +2,7 @@
     "files.associations": {
         "cstdlib": "c",
         "stdio.h": "c",
-        "limits": "c"
+        "limits": "c",
+        "stdlib.h": "c"
     }
 }
