@@ -38,6 +38,7 @@ struct BigNum {
 //#define THIRD_MULT       10
 //#define FIRST_MULT_256   11
 //#define SECOND_MULT_256  12
+//#define THIRD_MULT_256   13
 
 // Funcion para indicar el modo de ejecucion correcto del programa
 void Usage(char const *);
@@ -104,6 +105,9 @@ void FirstMethodSimplified256(unsigned int n, unsigned int k);
 
 // Segundo metodo combinatorial simplificado con base 256: C(n,k) = [PI_{1}^{k-1} ((n - i) / i))] + [PI_{1}^{k} ((n - i) / i))]
 void SecondMethodSimplified256(unsigned int n, unsigned int k);
+
+
+void ThirdMethodSimplified256(unsigned int n, unsigned int k);
 
 /*
  *
@@ -320,8 +324,19 @@ int main(int argc, char const **argv) {
 
             printf("\n%u - CPU time %f\n", n, E_cpu);
         }
+        else if (strcmp(argv[1], "-13") == 0) {
+            //method = THIRD_MULT_256;
+
+            csc = clock(); // cpu start
+            ThirdMethodSimplified256(n, k);
+            cec = clock(); // cpu exit
+
+            E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
+
+            printf("\n%u - CPU time %f\n", n, E_cpu);
+        }
         else {
-            printf("\nEnter a valid mode (0 <= o <= 12)\n\n");
+            printf("\nEnter a valid mode (0 <= o <= 13)\n\n");
             exit(EXIT_FAILURE);
         } 
     }
@@ -351,7 +366,7 @@ int main(int argc, char const **argv) {
 
 void Usage(char const *msg) {
     printf("\nUsage: %s -o n k", msg);
-    printf("\n\no in {0,1,2,3,4,5,6,7,8,9,10,11}\n\n");
+    printf("\n\no in {0,1,2,3,4,5,6,7,8,9,10,11,12,13}\n\n");
     printf("0: First Method - Recursive Factorial\n");
     printf("1: First Method - Recursive Factorial with Memoization\n");
     printf("2: First Method - Iterative Factorial\n");
@@ -365,6 +380,7 @@ void Usage(char const *msg) {
     printf("10: Third Method Multiplicative\n");
     printf("11: First Method Multiplicative - 256 Base\n");
     printf("12: Second Method Multiplicative - 256 Base\n");
+    printf("13: Third Method Multiplicative - 256 Base\n");
 }
 
 unsigned int CheckValues(unsigned int n, unsigned int k) {
@@ -437,8 +453,10 @@ unsigned long long int FactorialMemo(unsigned int num, unsigned long long int *m
 
 unsigned long long int FirstMethodRec(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
 
-    unsigned long long int base = CheckValues(n, k); // Convertimos el tipo de dato del caso base para que coincida con el de la funcion
+    unsigned long long int base;
 
+    base = CheckValues(n, k);
+    
     if (base != 0) { // Si alguno de los casos base ocurre, devolvemos el valor correspondiente
         return base;
     }
@@ -453,7 +471,9 @@ unsigned long long int FirstMethodRec(unsigned int n, unsigned int k, unsigned l
 
 unsigned long long int FirstMethodIte(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
 
-    unsigned long long int base = CheckValues(n, k); // Convertimos el tipo de dato del caso base para que coincida con el de la funcion
+    unsigned long long int base;
+
+    base = CheckValues(n, k);
 
     if (base != 0) { // Si alguno de los casos base ocurre, devolvemos el valor correspondiente
         return base;
@@ -533,8 +553,10 @@ unsigned long long int ThirdMethodMemoized(unsigned int n, unsigned int k, unsig
 
 unsigned long long int FirstMethodSimplified(unsigned int n, unsigned int k) {
 
-    unsigned long long int prod, base = CheckValues(n, k); // Convertimos el tipo de dato del caso base para que coincida con el de la funcion
+    unsigned long long int prod, base;
     unsigned int i;
+
+    base = CheckValues(n, k);
 
     if (base != 0) { // Si alguno de los casos base ocurre, devolvemos el valor correspondiente
         return base;
@@ -557,8 +579,10 @@ unsigned long long int FirstMethodSimplified(unsigned int n, unsigned int k) {
 
 unsigned long long int SecondMethodSimplified(unsigned int n, unsigned int k) {
 
-    unsigned long long int first_mult, second_mult, base = CheckValues(n, k); // Convertimos el tipo de dato del caso base para que coincida con el de la funcion
+    unsigned long long int first_mult, second_mult, base;
     unsigned int i;
+
+    base = CheckValues(n, k);
 
     if (base != 0) { // Si alguno de los casos base ocurre, devolvemos el valor correspondiente
         return base;
@@ -589,8 +613,10 @@ unsigned long long int SecondMethodSimplified(unsigned int n, unsigned int k) {
 
 unsigned long long int ThirdMethodSimplified(unsigned int n, unsigned int k) {
 
-    unsigned long long int prod, base = CheckValues(n, k); // Convertimos el tipo de dato del caso base para que coincida con el de la funcion
+    unsigned long long int prod, base;
     unsigned int i;
+
+    base = CheckValues(n, k);
 
     if (base != 0) { // Si alguno de los casos base ocurre, devolvemos el valor correspondiente
         return base;
@@ -718,52 +744,107 @@ void PrintDecimal(struct BigNum *num) {
 void FirstMethodSimplified256(unsigned int n, unsigned int k) {
     
     struct BigNum result;
-    int i;
+    unsigned int base, i;
 
-    InitBigNum(&result);
+    base = CheckValues(n, k);
 
-    // Propiedad de simetria: C(n,k) = C(n,n-k)
-    if (k > n / 2) {
-        k = n - k;
-    } 
-
-    for (i = 1; i <= k; i = i + 1) {
-        MulBigNum(&result, n - k + i);
-        DivBigNum(&result, i);
+    if (base == 1) { // Si alguno de los casos base ocurre, mostramos el valor correspondiente
+        printf("\nFirst method multiplicative with 256 base: C(%u,%u) = %u\n", n, k, base);
     }
+    else if (base == n) {
+        printf("\nFirst method multiplicative with 256 base: C(%u,%u) = %u\n", n, k, base);
+    }
+    else {
+        InitBigNum(&result);
 
-    printf("\nFirst method multiplicative with 256 base: C(%u,%u) = ", n, k);
-    PrintDecimal(&result);
-    printf("\n");
+        // Propiedad de simetria: C(n,k) = C(n,n-k)
+        if (k > n / 2) {
+            k = n - k;
+        } 
+
+        for (i = 1; i <= k; i = i + 1) {
+            MulBigNum(&result, n - k + i);
+            DivBigNum(&result, i);
+        }
+
+        printf("\nFirst method multiplicative with 256 base: C(%u,%u) = ", n, k);
+        PrintDecimal(&result);
+        printf("\n");
+    }
 }
 
 
 void SecondMethodSimplified256(unsigned int n, unsigned int k) {
 
     struct BigNum result1, result2;
-    int i;
+    unsigned int base, i;
 
-    InitBigNum(&result1);
-    InitBigNum(&result2);
+    base = CheckValues(n, k);
 
-    // Propiedad de simetria: C(n,k) = C(n,n-k)
-    if (k > n / 2) {
-        k = n - k;
-    } 
-
-    for (i = 1; i <= k - 1; i = i + 1) { 
-        MulBigNum(&result1, n - i);
-        DivBigNum(&result1, i);
+    if (base == 1) { // Si alguno de los casos base ocurre, mostramos el valor correspondiente
+        printf("\nSecond method multiplicative with 256 base: C(%u,%u) = %u\n", n, k, base);
     }
+    else if (base == n) {
+        printf("\nSecond method multiplicative with 256 base: C(%u,%u) = %u\n", n, k, base);
+    }
+    else {
+        InitBigNum(&result1);
+        InitBigNum(&result2);
 
-    for (i = 1; i <= k; i = i + 1) {
-        MulBigNum(&result2, n - i);
-        DivBigNum(&result2, i);
-    } 
+        // Propiedad de simetria: C(n,k) = C(n,n-k)
+        if (k > n / 2) {
+            k = n - k;
+        } 
 
-    AddTwoBigNums(&result1, &result2);
+        for (i = 1; i <= k - 1; i = i + 1) { 
+            MulBigNum(&result1, n - i);
+            DivBigNum(&result1, i);
+        }
 
-    printf("\nSecond method multiplicative with 256 base: C(%u,%u) = ", n, k);
-    PrintDecimal(&result1);
-    printf("\n");
+        for (i = 1; i <= k; i = i + 1) {
+            MulBigNum(&result2, n - i);
+            DivBigNum(&result2, i);
+        } 
+
+        AddTwoBigNums(&result1, &result2);
+
+        printf("\nSecond method multiplicative with 256 base: C(%u,%u) = ", n, k);
+        PrintDecimal(&result1);
+        printf("\n");
+    }
+}
+
+void ThirdMethodSimplified256(unsigned int n, unsigned int k) {
+
+    struct BigNum result;
+    unsigned int base, i;
+
+    base = CheckValues(n, k);
+
+    if (base == 1) { // Si alguno de los casos base ocurre, mostramos el valor correspondiente
+        printf("\nThird method multiplicative with 256 base: C(%u,%u) = %u\n", n, k, base);
+    }
+    else if (base == n) {
+        printf("\nThird method multiplicative with 256 base: C(%u,%u) = %u\n", n, k, base);
+    }
+    else {
+        InitBigNum(&result);
+
+        // Propiedad de simetria: C(n,k) = C(n,n-k)
+        if (k > n / 2) {
+            k = n - k;
+        }
+
+        for (i = 1; i <= k - 1; i = i + 1) {
+            MulBigNum(&result, n - i);
+            DivBigNum(&result, i);
+        }
+
+        MulBigNum(&result, n);
+        DivBigNum(&result, k);
+
+        printf("\nThird method multiplicative with 256 base: C(%u,%u) = ", n, k);
+        PrintDecimal(&result);
+        printf("\n");
+    }
 }
