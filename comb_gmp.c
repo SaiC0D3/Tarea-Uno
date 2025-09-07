@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <gmp.h>
 
 // Función para calcular nCk = n! / (k!(n-k)!)
@@ -26,12 +27,12 @@ void combinatoria(mpz_t result, unsigned int n, unsigned int k) {
     mpz_clears(fact_n, fact_k, fact_nk, denom, NULL);
 }
 
-int main() {
+int main(int argc, char const **argv) {
     mpz_t res;
     unsigned int n, k; // Ejemplo con números grandes
 
-    printf("Ingrese un n y un k: ");
-    scanf("%u %u", &n, &k);
+    n = strtoul(argv[1], NULL, 10); // Para convertir los argumentos de entrada a unsigned long long int
+    k = strtoul(argv[2], NULL, 10);
 
     mpz_init(res);
 
