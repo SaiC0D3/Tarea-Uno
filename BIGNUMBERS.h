@@ -120,7 +120,7 @@ void PrintDecimal(struct BigNum *num) {
     }
 
     // Imprimimos en orden inverso el numero decimal
-    for (k = dec_size - 1; k >= 0; k = k - 1) {
-        printf("%u", decimal[k]);
-    }
+    // for (k = dec_size - 1; k >= 0; k = k - 1) {
+    //     printf("%u", decimal[k]);
+    // }
 }
