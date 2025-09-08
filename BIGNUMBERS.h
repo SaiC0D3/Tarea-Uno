@@ -1,7 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 
-#define MAX_BLOCKS 99999 // Cantidad maxima de bloques para almacenar una combinatoria en base 256 (1Mb en el stack)
+#define MAX_BLOCKS 300000 // Cantidad maxima de bloques para almacenar una combinatoria en base 256 (1Mb en el stack)
 #define BASE 256          // Cantidad de digitos (0-255) por cada bloque
 
 struct BigNum {
@@ -120,7 +120,7 @@ void PrintDecimal(struct BigNum *num) {
     }
 
     // Imprimimos en orden inverso el numero decimal
-    // for (k = dec_size - 1; k >= 0; k = k - 1) {
-    //     printf("%u", decimal[k]);
-    // }
+    for (k = dec_size - 1; k >= 0; k = k - 1) {
+        printf("%u", decimal[k]);
+    }
 }
