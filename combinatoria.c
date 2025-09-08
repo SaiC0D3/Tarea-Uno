@@ -1,14 +1,13 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *   Programa:        combinatoria.c
  *   Descripcion:     Calcula C(n,k) con tres metodos distintos, sus versiones optimizadas sin recursion,
- *                    algunas con memoizacion y otras con covnersion a base 256, ademas del tiempo CPU
+ *                    algunas con memoizacion y otras con conversion a base 256, ademas del tiempo CPU.
  *   Autores:         Matias Olivares Morales y Delian Santis Lopez
- *   Ultima revision: 07-09-2025  
- *   Compilador:      gcc.exe (MinGW.org GCC-6.3.0-1) 6.3.0
+ *   Ultima revision: 08-09-2025  
  *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -29,10 +28,10 @@ void Usage(char const *);
 unsigned int CheckValues(unsigned int n, unsigned int k);
 
 // Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! con calculo de factorial recursivo y memoizacion
-unsigned long long int FirstMethodRecursiveFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op);
+unsigned int FirstMethodRecursiveFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op);
 
 // Primer metodo combinatorial: C(n,k) = n! / (n - k)! * k! con calculo de factorial recursivo y memoizacion
-unsigned long long int FirstMethodIterativeFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op);
+unsigned int FirstMethodIterativeFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op);
 
 // Segundo metodo combinatorial: C(n,k) = C(n-1,k-1) + C(n-1,k)
 unsigned long long int SecondMethod(unsigned int n, unsigned int k);
@@ -96,9 +95,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nFirst method - recursive factorial: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nFirst method - recursive factorial: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         } 
         else if (strcmp(argv[1], "-1") == 0) {
 
@@ -111,9 +109,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nFirst method - recursive factorial with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nFirst method - recursive factorial with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         } 
         else if (strcmp(argv[1], "-2") == 0) {
 
@@ -126,9 +123,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nFirst method - iterative factorial: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nFirst method - iterative factorial: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         } 
         else if (strcmp(argv[1], "-3") == 0) {
 
@@ -141,9 +137,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nFirst method - iterative factorial with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nFirst method - iterative factorial with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-4") == 0) {
 
@@ -158,9 +153,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nSecond method recursive: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nSecond method recursive: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-5") == 0) {
 
@@ -180,9 +174,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nSecond method recursive with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nSecond method recursive with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-6") == 0) {
 
@@ -192,9 +185,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nThird method recursive: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nThird method recursive: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-7") == 0) {
 
@@ -209,9 +201,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nThird method recursive with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nThird method recursive with memoization: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-8") == 0) {
 
@@ -221,9 +212,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nFirst method multiplicative: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nFirst method multiplicative: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-9") == 0) {
 
@@ -238,9 +228,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nSecond method multiplicative: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nSecond method multiplicative: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-10") == 0) {
 
@@ -250,9 +239,8 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
-
-            //printf("\nThird method multiplicative: C(%u,%u) = %llu\n", n, k, result);
+            printf("\nThird method multiplicative: C(%u,%u) = %llu\n", n, k, result);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-11") == 0) {
 
@@ -262,7 +250,7 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
+            printf("CPU time: %f\n", E_cpu);
         } 
         else if (strcmp(argv[1], "-12") == 0) {
 
@@ -272,7 +260,7 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
+            printf("CPU time: %f\n", E_cpu);
         }
         else if (strcmp(argv[1], "-13") == 0) {
 
@@ -282,7 +270,7 @@ int main(int argc, char const **argv) {
 
             E_cpu = (float)(cec - csc) / CLOCKS_PER_SEC;
 
-            printf("%u  %f\n", n, E_cpu);
+            printf("CPU time: %f\n", E_cpu);
         }
         else {
             printf("\nEnter a valid mode (0 <= o <= 13)\n\n");
@@ -305,7 +293,7 @@ int main(int argc, char const **argv) {
         free(table);
     }
     
-    //printf("\n");
+    printf("\n");
     return 0;
 }
 
@@ -343,7 +331,7 @@ unsigned int CheckValues(unsigned int n, unsigned int k) {
     return 0; // No es un caso base
 }
 
-unsigned long long int FirstMethodRecursiveFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
+unsigned int FirstMethodRecursiveFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
 
     unsigned long long int base;
 
@@ -361,7 +349,7 @@ unsigned long long int FirstMethodRecursiveFact(unsigned int n, unsigned int k, 
     }
 }
 
-unsigned long long int FirstMethodIterativeFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
+unsigned int FirstMethodIterativeFact(unsigned int n, unsigned int k, unsigned long long int *memo, unsigned char op) {
 
     unsigned long long int base;
 
@@ -526,7 +514,7 @@ unsigned long long int ThirdMethodSimplified(unsigned int n, unsigned int k) {
        prod = prod / i;
     }
 
-    return ((n * prod) / k); //  C(n,k) = (n / k) * (PI_{i=1}^{k-1} (n - i))
+    return ((n * prod) / k); // C(n,k) = (n / k) * (PI_{i=1}^{k-1} (n - i))
 }
 
 void FirstMethodSimplified256(unsigned int n, unsigned int k) {
@@ -550,14 +538,14 @@ void FirstMethodSimplified256(unsigned int n, unsigned int k) {
             k = n - k;
         } 
 
-        for (i = 1; i <= k; i = i + 1) {
+        for (i = 1; i <= k; i = i + 1) { 
             MulBigNum(&result, n - k + i);
             DivBigNum(&result, i);
         }
 
-        // printf("\nFirst method multiplicative with 256 base: C(%u,%u) = ", n, k);
-        PrintDecimal(&result);
-        // printf("\n");
+        printf("\nFirst method multiplicative with 256 base: C(%u,%u) = ", n, k);
+        PrintDecimal(&result); // C(n,k) = PI_{i=1}^{k} ((n - k + i) / i)
+        printf("\n");
     }
 }
 
@@ -589,16 +577,16 @@ void SecondMethodSimplified256(unsigned int n, unsigned int k) {
             DivBigNum(&result1, i);
         }
 
-        for (i = 1; i <= k; i = i + 1) {
+        for (i = 1; i <= k; i = i + 1) { 
             MulBigNum(&result2, n - i);
             DivBigNum(&result2, i);
         } 
 
         AddTwoBigNums(&result1, &result2);
 
-        // printf("\nSecond method multiplicative with 256 base: C(%u,%u) = ", n, k);
-        PrintDecimal(&result1);
-        // printf("\n");
+        printf("\nSecond method multiplicative with 256 base: C(%u,%u) = ", n, k);
+        PrintDecimal(&result1); // C(n,k) = [PI_{1}^{k-1} ((n - i) / i))] + [PI_{1}^{k} ((n - i) / i))]
+        printf("\n");
     }
 }
 
@@ -631,8 +619,8 @@ void ThirdMethodSimplified256(unsigned int n, unsigned int k) {
         MulBigNum(&result, n);
         DivBigNum(&result, k);
 
-        // printf("\nThird method multiplicative with 256 base: C(%u,%u) = ", n, k);
-        PrintDecimal(&result);
-        // printf("\n");
+        printf("\nThird method multiplicative with 256 base: C(%u,%u) = ", n, k);
+        PrintDecimal(&result); // C(n,k) = (n / k) * (PI_{i=1}^{k-1} (n - i))
+        printf("\n");
     }
 }
